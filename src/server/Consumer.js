@@ -1,7 +1,9 @@
 const { ShortCodeExpireError } = require('@mixer/shortcode-oauth');
 const interactive = require('@mixer/interactive-node');
 const BasicController = require('./controllers/BasicController');
+const fetch = require('node-fetch');
 
+const MIXER_API = 'https://mixer.com/api/v1';
 interactive.setWebSocket(require('ws'));
 
 module.exports = class Consumer {
@@ -18,6 +20,7 @@ module.exports = class Consumer {
         this.controller     = new BasicController(this, this.mixer);
         this.isMixerReady   = false;
         this.keepAlive      = false;    //Keeps the mixer alive
+        this.user           = null;
     }
 
     /** Closes any connections we have and cleans up the code.
@@ -74,8 +77,7 @@ module.exports = class Consumer {
             //Run through the cleanup, but dont clean up mixer if we are to be remembered
             console.log('consumer WS closed', message);
             that.close(message, ws);
-        });
-      
+        });      
         this.ws.on('message', (message) => {
             //Close previous
             if (ws != that.ws) {
@@ -89,33 +91,43 @@ module.exports = class Consumer {
             this.controller.onMessage(blob);
         });
 
+        //Say hello!        
+        this.send('HELLO');
+
         try 
         {
             //Only wait for tokens if we need too
             if (!this.tokens) 
             {
-                console.log("MIXER_CODE_WAIT", this.uuid);
+                console.log('MIXER_CODE_WAIT', this.shortCode);
                 this.send('MIXER_CODE_WAIT', this.shortCode);
                 let tokenData = await this.shortCode.waitForAccept();
                 this.tokens = tokenData.data;
-                console.log("got tokens", this.uuid, this.tokens);
             }
         }   
         catch(err) 
         {
             //Catch token errors
             if (err instanceof ShortCodeExpireError) {
-                if (this.isMixerReady) return;
-                console.warn('MIXER_CODE_EXPIRE', this.uuid);
-                this.send('MIXER_CODE_EXPIRE', this.shortCode.code);
-                this.close('short code expired', true);
-                return;
+                if (!this.isMixerReady) {
+                    console.warn('MIXER_CODE_EXPIRE', this.shortCode.code);
+                    this.send('MIXER_CODE_EXPIRE', this.shortCode.code);
+                    this.close('short code expired', true);
+                    return;
+                }
             }
         }
         
         //We are ready
-        console.log('MIXER_CODE_ACCEPT', this.uuid);
+        console.log('MIXER_CODE_ACCEPT', this.shortCode.code);
         this.send('MIXER_CODE_ACCEPT', this.shortCode.code);
+
+        //Get the user. Dont care how long this takes. Eventually consistent
+        this.mixerResource('GET', '/users/current').then((user) => {
+            this.user = user;
+            console.log("MIXER_IDENTIFY", this.user);
+            this.send('MIXER_IDENTIFY', this.user)
+        });
 
         //We havn't gotten a client yet, so set it up
         if (this.mixer == null) {
@@ -126,8 +138,7 @@ module.exports = class Consumer {
 
         //Close the mixer
         if (this.isMixerReady) {
-            console.log("consumer requires simulated events", this.uuid);
-            this.send('CONSUMER_CONNECT');
+            console.log("Already have mixer, saying hello!", this.uuid);
             this.send('MIXER_OPEN');
             this.controller.onReady();
             return;
@@ -163,9 +174,7 @@ module.exports = class Consumer {
             that.remembered = false;
             that.send('ERROR', e);
             that.close('open exception', true);
-        });   
-
-        this.send('CONSUMER_CONNECT');
+        });
     }
 
     /** Sends an event */
@@ -177,5 +186,19 @@ module.exports = class Consumer {
             p: payload, 
             n: this.nonce++ 
         }));
+    }
+
+    /** fetches a mixer endpoint */
+    async mixerResource(verb, endpoint, payload = null) {
+        let response = await fetch(`${MIXER_API}${endpoint}`, {
+            method: verb,
+            body: payload ? JSON.stringify(payload) : null,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.tokens.accessToken}`
+            }
+        });
+
+        return await response.json();
     }
 }

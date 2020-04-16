@@ -1,5 +1,6 @@
 const { v1: Uuid, v5: Uuidv5 } = require('uuid');
 
+const FS = require('fs');
 const Consumer = require('./Consumer.js');
 const NodeCache = require('node-cache');
 const Redis = require('redis');
@@ -26,12 +27,15 @@ app.use(express.static('public'));
 app.use(sessionParser);
 
 //init: oauth
-const MIXER_CLIENT_ID = '8f1f2333d089d0098efb4c1b2599b54e1a696ffc5850f121';
-const MIXER_GAME_VERSION = 461588;
 const { OAuthClient } = require('@mixer/shortcode-oauth');
+
+const MIXER_GAME_VERSION = 461588;
+const MIXER_CLIENT_ID = '8f1f2333d089d0098efb4c1b2599b54e1a696ffc5850f121';
 const mixerOAuthClient = new OAuthClient({
-  clientId: MIXER_CLIENT_ID,
-  scopes: ['interactive:robot:self'],
+    clientId: MIXER_CLIENT_ID,
+    scopes: [
+        'interactive:robot:self'
+    ],
 });
 
 //https://github.com/websockets/ws/blob/master/examples/express-session-parse/index.js

@@ -12,6 +12,16 @@
     </head>
     <body>
         <div class="graphics">
+            <img id="avatar" />
         </div>
     </body>
+    <script>
+        mixy.on('identify', (user) => {
+            console.log('identify');
+            $('#avatar').attr('src', user.avatarUrl);
+        });
+        mixy.on('ready', () => {
+            console.log('ready!');
+        });
+    </script>
 </html>

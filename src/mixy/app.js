@@ -5,14 +5,18 @@ import '../bulma/modal.js';
 import { Mixer } from './Mixer.js';
 import './oAuthPopup.js';
 
-export let mixer = null;
+export const mixer = new Mixer();
 
+/** Alias */
+export function on(event, handler) {
+    mixer.on(event, handler);
+}
 
 $().ready(() => { 
     let shortCodeModal = null;
     let oauthWindow = null;
     
-    mixer = new Mixer();
+    mixer.connect();
     mixer.on('codePending', (e) => {
         if (shortCodeModal == null) {
             shortCodeModal = document.createModal(`

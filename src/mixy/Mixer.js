@@ -9,6 +9,8 @@ export class Mixer extends EventEmitter {
         this.port = 80;
         this.host = host;
         this.shortCode = null;
+        this.user = null;
+        this.channel = null;
 
         if (!this.host) {
             this.secure     = location.protocol == 'https:';
@@ -16,11 +18,9 @@ export class Mixer extends EventEmitter {
             this.port       = location.port || 80;
             this.host       = `${this.protocol}//${location.hostname}:${this.port}/`;
         }
-
-        setTimeout(() => { this._setupWebsocket(); }, 1000);       
     }
     
-    _setupWebsocket() {
+    connect() {
         this.log('initializing websocket...');
         this.ws = new WebSocket(this.host);
         this.ws.addEventListener('open', (e) => { this.emit('open', e); });
@@ -32,7 +32,7 @@ export class Mixer extends EventEmitter {
             let nonce = data.n;
 
             //Emit the event right back
-            this.log("event", nonce, event, payload);
+            this.log(`[${nonce}] ${event}`, payload);
             this.emit(event, payload, nonce);
 
             //Special cases
@@ -54,6 +54,12 @@ export class Mixer extends EventEmitter {
 
                 case 'MIXER_OPEN':
                     this.emit('mixerReady');
+                    break;
+
+                case 'MIXER_IDENTIFY':
+                    this.user = payload;
+                    this.channel = this.user.channel;
+                    this.emit('identify', this.user);
                     break;
 
                 case 'ERROR':
@@ -81,8 +87,8 @@ export class Mixer extends EventEmitter {
         });
     }
 
-    log(msg, ...args) {
-        console.log("[mixer]", msg, args);
+    log(...args) {
+        console.log("[mixer]", ...args);
     }
 
     _stc(str) {
