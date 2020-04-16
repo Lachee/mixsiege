@@ -1,4 +1,5 @@
 *.key
+*.npmrc
 node_modules
 .vscode
 public/dist/

@@ -94,7 +94,8 @@ module.exports = class Consumer {
             //Only wait for tokens if we need too
             if (!this.tokens) 
             {
-                console.log("consumer waiting for code", this.uuid);
+                console.log("MIXER_CODE_WAIT", this.uuid);
+                this.send('MIXER_CODE_WAIT', this.shortCode);
                 let tokenData = await this.shortCode.waitForAccept();
                 this.tokens = tokenData.data;
                 console.log("got tokens", this.uuid, this.tokens);
@@ -105,15 +106,16 @@ module.exports = class Consumer {
             //Catch token errors
             if (err instanceof ShortCodeExpireError) {
                 if (this.isMixerReady) return;
-                console.warn('consumer expired', this.uuid);
-                this.sendMixerEvent('CODE_EXPIRE');
+                console.warn('MIXER_CODE_EXPIRE', this.uuid);
+                this.send('MIXER_CODE_EXPIRE', this.shortCode.code);
                 this.close('short code expired', true);
+                return;
             }
         }
         
         //We are ready
-        console.log('consumer ready', this.uuid);
-        this.sendMixerEvent('CODE_ACCEPT');
+        console.log('MIXER_CODE_ACCEPT', this.uuid);
+        this.send('MIXER_CODE_ACCEPT', this.shortCode.code);
 
         //We havn't gotten a client yet, so set it up
         if (this.mixer == null) {
@@ -126,7 +128,7 @@ module.exports = class Consumer {
         if (this.isMixerReady) {
             console.log("consumer requires simulated events", this.uuid);
             this.send('CONSUMER_CONNECT');
-            this.sendMixerEvent('OPEN');
+            this.send('MIXER_OPEN');
             this.controller.onReady();
             return;
         }
@@ -151,7 +153,7 @@ module.exports = class Consumer {
         }).then(() => {
 
             console.log('consumer opened', this.uuid);
-            that.sendMixerEvent('OPEN');
+            that.send('MIXER_OPEN');
             that.isMixerReady = true;
             that.controller.onReady();
             return that.mixer.ready(true);
@@ -170,10 +172,10 @@ module.exports = class Consumer {
     send(event, payload = null) {
         //TODO: Queue Events
         if (!this.ws) return false;
-        return this.ws.send(JSON.stringify({ e: event, d: payload, n: this.nonce++ }));
-    }
-
-    sendMixerEvent(event, payload = null) {
-        return this.send('MIXER_' + event, payload);
+        return this.ws.send(JSON.stringify({ 
+            e: event, 
+            p: payload, 
+            n: this.nonce++ 
+        }));
     }
 }

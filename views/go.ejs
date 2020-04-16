@@ -6,91 +6,12 @@
         <!--<link rel="stylesheet" type="text/css" href="/css/style.css">-->
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
         <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+        
+        <link rel="stylesheet" type="text/css" href="/dist/bundle.app.css">
         <script src="/dist/bundle.app.js"></script>
     </head>
     <body>
-        <div class="container">
-            <fieldset>
-                <input name="uuid" type="text" class="ghost-input" readonly value="<%= consumer.uuid %>">
-                <input name="shortcode" type="text" class="ghost-input" readonly value="<%= consumer.shortCode.code %>">
-                <a href="#" class="ghost-input">mixer.com/go</a>
-            </fieldset>
+        <div class="graphics">
         </div>
-        <pre id="log"></pre>
     </body>
-    <script>
-
-        function MIXER_CODE_ACCEPT() {
-            console.log("Ready!");
-
-            //Close the oAuth2 window
-            if ($._oauthWindow) $._oauthWindow.close();
-            $('.container').slideUp();
-        }
-
-        function close() {
-            $('.container').slideDown();
-            $('input[name=shortcode]').val('disconnected');
-        }
-
-
-        // Create WebSocket connection.
-        // Connection opened
-        const socket = new WebSocket('ws://localhost:<%= port %>');
-        socket.addEventListener('open', function (event) {  });
-        socket.addEventListener('close', function (event) { close(); });
-
-        // Listen for messages
-        socket.addEventListener('message', function (event) {
-            $('#log').prepend(event.data + "\n");
-            let data = JSON.parse(event.data);
-            switch(data.e) {
-                case 'SHORT_CODE_EXPIRED':
-                    location.reload();
-                    return;                    
-
-                case 'MIXER_CODE_ACCEPT':
-                    MIXER_CODE_ACCEPT();
-                    break;
-
-                case 'MC_EVENT_CONTROL':
-                    console.log(data.d.event, data.d);
-                    break;
-
-                case 'CONNECT':
-                    break;
-            }
-        });
-
-
-
-
-
-        $.oauthpopup = function(options)
-        {
-            options.windowName = options.windowName ||  'ConnectWithOAuth'; // should not include space for IE
-            options.windowOptions = options.windowOptions || 'location=0,status=0,width=800,height=400';
-            options.callback = options.callback || function(){ window.location.reload(); };
-            var that = this;
-            that._oauthWindow = window.open(options.path, options.windowName, options.windowOptions);
-            that._oauthInterval = window.setInterval(function(){
-                if (that._oauthWindow.closed) {
-                    window.clearInterval(that._oauthInterval);
-                    options.callback();
-                }
-            }, 1000);
-        };
-        $('a').click(function() {
-            $.oauthpopup({
-                path: 'https://mixer.com/go',
-                windowOptions: 'width=555,height=600',
-                callback: function()
-                {
-                    console.log('callback');
-                    //do callback stuff
-                }
-            });
-        });
-
-    </script>
 </html>
