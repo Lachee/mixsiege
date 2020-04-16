@@ -31,12 +31,21 @@ const { OAuthClient } = require('@mixer/shortcode-oauth');
 
 const MIXER_GAME_VERSION = 461588;
 const MIXER_CLIENT_ID = '8f1f2333d089d0098efb4c1b2599b54e1a696ffc5850f121';
+const MIXER_API = 'https://mixer.com/api/v1';
 const mixerOAuthClient = new OAuthClient({
     clientId: MIXER_CLIENT_ID,
     scopes: [
         'interactive:robot:self'
     ],
 });
+
+//init carnia
+const Carina  = require('carina').Carina;
+Carina.WebSocket = WebSocket;
+const carnia = new Carina({
+    isBOt: true,
+    queryString: { 'Client-ID': MIXER_CLIENT_ID }
+}).open();
 
 //https://github.com/websockets/ws/blob/master/examples/express-session-parse/index.js
 const server = http.createServer(app);
@@ -112,7 +121,7 @@ app.get('*', async (req, res) => {
         console.log("Connection Created", uuid);
         
         //Prepare the consumer
-        consumer = new Consumer(uuid, oauth, MIXER_GAME_VERSION);
+        consumer = new Consumer(uuid, oauth, { MIXER_API, MIXER_CLIENT_ID, MIXER_GAME_VERSION, mixerOAuthClient, carnia });
         consumer.keepAlive = req.query.keepAlive !== undefined;
         consumer.onClose = () => { 
             pendingConsumers.del(uuid);

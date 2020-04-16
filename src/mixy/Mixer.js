@@ -67,19 +67,20 @@ export class Mixer extends EventEmitter {
                     this.emit('error', e);
                     break;
 
-                case 'MC_PREREADY':
-                    this.emit('preReady');
-                    break;
-
-                case 'MC_READY':
+                case 'PLAY_READY':
                     this.emit('ready');
                     break;
 
                 default:
-                    if (event.startsWith('MC_')) {
-                        let name = this._stc(event.substring(3));
-                        this.log("controller event", name);
-                        this.emit(name, payload, nonce);
+                    if (event.startsWith('PLAY_')) {
+                        let name = this._stc(event.substring(5));
+                        this.log("Play Event", name);
+                        this.emit(name, payload, 'play', nonce);
+                    } 
+                    else if (event.startsWith('CARNIA_')) {
+                        let name = this._stc(event.substring(7));
+                        this.log("Carnia Event", name);
+                        this.emit(name, payload, 'carnia', nonce);
                     }
                     break;
 

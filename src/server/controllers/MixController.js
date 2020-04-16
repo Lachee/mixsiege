@@ -40,6 +40,6 @@ module.exports = class MixController {
 
     /** Sends a payload */
     send(event, payload = null) {
-        this.consumer.send("MC_" + event, payload);
+        this.consumer.send("PLAY_" + event, payload);
     }
 }

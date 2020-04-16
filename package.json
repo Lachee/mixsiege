@@ -17,6 +17,7 @@
     "@mixer/interactive-node": "^3.0.1",
     "@mixer/shortcode-oauth": "^1.2.0",
     "bulma-switch": "^2.0.0",
+    "carina": "^0.11.2",
     "client-oauth2": "^4.2.5",
     "connect-redis": "^4.0.4",
     "copy-webpack-plugin": "^5.1.1",
