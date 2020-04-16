@@ -4,8 +4,8 @@
   "description": "Mixer MixPlay for Siege stats",
   "main": "index.js",
   "scripts": {
-    "start": "node ./server.js",
-    "debug": "npm run build:dev && node --nolazy --inspect-brk=9229 ./server.js",
+    "start": "node ./build.js",
+    "debug": "npm run build:dev && node --nolazy --inspect-brk=9229 ./build.js",
     "build": "npx webpack --config webpack.config.js --mode production",
     "build:dev": "npx webpack --config webpack.config.js --mode development",
     "build:run": "npm run build && npm start",

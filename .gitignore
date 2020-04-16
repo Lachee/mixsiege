@@ -3,3 +3,8 @@
 node_modules
 .vscode
 public/dist/
+/server.js
+/main.js
+/index.js
+/build.js
+build/

@@ -9,7 +9,7 @@ const serverConfig = {
     entry: './src/server/index.js',
     output: {
         path: path.resolve(__dirname, './'),
-        filename: 'server.js',
+        filename: 'build.js',
     },
     externals: [
         nodeExternals()
