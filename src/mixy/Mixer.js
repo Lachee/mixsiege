@@ -2,12 +2,14 @@ import EventEmitter from 'eventemitter3';
 
 export class Mixer extends EventEmitter {
 
-    constructor(host = null, port = null) {
+    constructor(host = null, endpoint = '/ws/') {
         super();
-        this.secure = true;
-        this.protocol = 'wss:';
-        this.port = location.port || 80;
-        this.host = host;
+        this.secure         = true;
+        this.protocol       = 'wss:';
+        this.port           = location.port || 80;
+        this.endpoint       = endpoint;
+        this.host           = host;
+
         this.shortCode = null;
         this.user = null;
         this.channel = null;
@@ -16,7 +18,9 @@ export class Mixer extends EventEmitter {
             this.secure     = location.protocol == 'https:';
             this.protocol   = this.secure ? 'wss:' : 'ws:';            
             this.port       = location.port || 80;
-            this.host       = `${this.protocol}//${location.hostname}:${this.port}/`;
+            
+            let portStr     = this.port == 80 ? '' : ":" + this.port;
+            this.host       = `${this.protocol}//${location.hostname}${portStr}${endpoint}`;
         }
     }
     

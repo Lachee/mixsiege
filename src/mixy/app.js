@@ -5,7 +5,7 @@ import '../bulma/modal.js';
 import { Mixer } from './Mixer.js';
 import './oAuthPopup.js';
 
-export const mixer = new Mixer(null, WS_PORT);
+export const mixer = new Mixer();
 
 /** Alias */
 export function on(event, handler) {
