@@ -154,6 +154,8 @@ app.get('*', async (req, res) => {
 // Websocket Connection
 wss.on('connection', async function connection(ws, request) {
 
+    console.log('Connection...');  
+
     //Get the consumer
     const uuid = request.session.uuid;
     const consumer = pendingConsumers.get(uuid);
