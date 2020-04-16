@@ -165,9 +165,11 @@ wss.on('connection', async function connection(ws, request) {
 
             //Invalid connection
             console.warn("Invalid connection, no consumer found.");
-            request.session.destroy(function() {
-                if (ws) ws.close();
-            });
+            ws.send("please fuck off");
+
+            //request.session.destroy(function() {
+            //    if (ws) ws.close();
+            //});
 
             return;
         } else {
