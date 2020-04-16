@@ -15,6 +15,10 @@ export class Mixer extends EventEmitter {
         if (!this.host) {
             this.secure     = location.protocol == 'https:';
             this.protocol   = this.secure ? 'wss:' : 'ws:';
+            
+            //TODO: Not this.
+            this.protocol   = 'ws:';
+
             this.port       = port || location.port || 80;
             this.host       = `${this.protocol}//${location.hostname}:${this.port}/`;
         }
