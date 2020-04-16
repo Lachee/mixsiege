@@ -132,7 +132,7 @@ app.get('*', async (req, res) => {
     consumer.keepAlive = req.query.keepAlive !== undefined;
     console.log(consumer.uuid, 'keep alive:' + consumer.keepAlive, req.query.keepAlive);
 
-    res.render('go', { 
+    res.render('base', { 
         consumer: consumer, 
         port: EXPRESS_PORT,
     });

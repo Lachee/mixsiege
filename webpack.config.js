@@ -18,13 +18,13 @@ const serverConfig = {
 
 const clientConfig = {
     target: 'web',
-    entry: './src/client/app.js',
+    entry: './src/mixy/app.js',
     output: {
-        filename: 'bundle.app.js',
+        filename: 'mixy.js',
         chunkFilename: 'vendor.[name].js',
         path: path.resolve(__dirname, 'public/dist'),
         publicPath: '/dist/',
-        library: 'app',
+        library: 'mixy',
 
     },
     module: {
@@ -52,7 +52,7 @@ const clientConfig = {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: 'bundle.app.css'
+        filename: 'mixy.css'
       }),
     ],
     devServer: {

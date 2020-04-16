@@ -21,10 +21,6 @@ input.shortcode {
   letter-spacing: 25pt;
   font-weight: bold;
 }
-input.shortcode::selection {
-  background-color: $background;
-  color: white;
-}
 
 .graphics {
   width: 100%;
